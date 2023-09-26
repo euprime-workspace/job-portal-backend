@@ -1,3 +1,7 @@
+jobPortal/media/uploads/
+jobPortal/jobPortal/__pycache__/
+jobPortal/APIs/__pycache__/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
