@@ -18,7 +18,7 @@ class Profile(models.Model):
         ('Machine Learning Scientist','Machine Learning Scientist')
     )
 
-    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='profile')
+    user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='profile')
     last_login_time=models.DateTimeField(default=timezone.now)
     email=models.EmailField()
     phone_number=models.CharField(max_length=15)
@@ -27,3 +27,6 @@ class Profile(models.Model):
     internship_exp=models.TextField()
     research_exp=models.TextField()
     role=models.CharField(max_length=45,choices=roles) 
+
+    def __str__(self):
+        return self.user.username
