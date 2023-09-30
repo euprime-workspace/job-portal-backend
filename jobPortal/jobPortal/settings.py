@@ -27,10 +27,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-    "corsheaders",
     'simple_history',
     'APIs.apps.ApisConfig'
 ]
@@ -163,14 +163,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-<<<<<<< HEAD
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOW_CREDENTIALS = True 
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost",         # Allow http://localhost
-    "http://localhost:3000",    # Allow http://localhost:3000 (for example, if your React app runs on port 3000)
-]
-=======
 CORS_ALLOW_ALL_ORIGINS = True
->>>>>>> 54770beb9351841cba7474185b754a5fe65525af

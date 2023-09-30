@@ -1,30 +1,30 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 
-<<<<<<< HEAD
-from .models import Profile,File
-=======
 from .models import *
 
->>>>>>> 54770beb9351841cba7474185b754a5fe65525af
-
 class ProfileSerializer(serializers.ModelSerializer):
+    fileInput = serializers.FileField(write_only=True)  # This field will handle the file upload
+
     class Meta:
         model = Profile
-        fields = '__all__'
+        exclude = ['resume']
 
-<<<<<<< HEAD
     def create(self, validated_data):
-        # Create a File instance and associate it with the 'resume' field
-        uploaded_file = self.context['request'].data.get('resume')
-        if uploaded_file:
-            file_instance = File(uploaded_file=uploaded_file)
-            file_instance.save()
-            validated_data['resume'] = file_instance
+        # Get the file data from the serializer
+        file_data = validated_data.pop('fileInput', None)
+        print(file_data)
+        # Create the File instance and save the file data to it
+        if file_data:
+            file_instance = File.objects.create()
+            file_instance.uploaded_file.save(file_data.name, ContentFile(file_data.read()))
+            validated_data['resume'] = file_instance  # Associate the File instance with the 'resume' field
 
-        profile = super().create(validated_data)
+        # Create the Profile instance without the 'resume' field
+        profile = Profile.objects.create(**validated_data)
+
         return profile
-=======
+
     def __str__(self):
         return self.user.username
 
@@ -36,4 +36,3 @@ class UserSerializer(serializers.ModelSerializer):
 
     def __str__(self):
         return self.username
->>>>>>> 54770beb9351841cba7474185b754a5fe65525af

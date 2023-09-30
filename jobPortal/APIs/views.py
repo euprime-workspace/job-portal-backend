@@ -1,35 +1,14 @@
 from django.http import Http404
 from django.shortcuts import render
-<<<<<<< HEAD
-from rest_framework import generics
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-=======
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
->>>>>>> 54770beb9351841cba7474185b754a5fe65525af
 
 from .models import *
 from .serializers import *
 
-<<<<<<< HEAD
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['username'] = user.username
-        return token
-    
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class=MyTokenObtainPairSerializer
-
-class ProfileView(generics.ListCreateAPIView):
-    serializer_class=ProfileSerializer
-    queryset=Profile.objects.all()
-=======
 
 @api_view(['POST'])
 def CreateProfile(request):
@@ -93,4 +72,3 @@ def login(request):
     except Exception as e:
         return Response({'action': "Get Login", 'message': str(e)},
                         status=status.HTTP_400_BAD_REQUEST)
->>>>>>> 54770beb9351841cba7474185b754a5fe65525af
