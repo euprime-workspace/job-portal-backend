@@ -10,15 +10,27 @@ from .models import *
 from .serializers import *
 
 
-class CreateProfile(generics.CreateAPIView):
-    serializer_class = ProfileSerializer
-    queryset = Profile.objects.all()
+@api_view(['POST'])
+def CreateProfile(request):
+
+    if request.method == 'POST':
+        try:
+            serializer_class = ProfileSerializer(data=request.data)
+            if serializer_class.is_valid():
+                serializer_class.save()
+                return Response({'action': "Add Profile", 'message': "Profile Added Successfully"},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'action': "Add Profile", 'message': serializer_class.errors},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({'action': "Add Profile", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 def signUp(request):
     if request.method == 'POST':
-
 
         try:
             serializer = UserSerializer(data=request.data)
