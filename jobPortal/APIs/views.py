@@ -3,7 +3,8 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from .models import *

@@ -3,8 +3,15 @@ from django.core.files.base import ContentFile
 
 from .models import *
 
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        exclude=['history']
+    
+    def __str__(self):
+        return self.uploaded_file.name
+
 class ProfileSerializer(serializers.ModelSerializer):
-    fileInput = serializers.FileField(write_only=True)  # This field will handle the file upload
+    fileInput = serializers.FileField(max_length=100000,allow_empty_file=False)  # This field will handle the file upload
 
     class Meta:
         model = Profile
@@ -16,9 +23,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         print(file_data)
         # Create the File instance and save the file data to it
         if file_data:
-            file_instance = File.objects.create()
-            file_instance.uploaded_file.save(file_data.name, ContentFile(file_data.read()))
-            validated_data['resume'] = file_instance  # Associate the File instance with the 'resume' field
+            file_serializer=FileSerializer(data=file_data)
+            if file_serializer.is_valid():
+                print("valid")
+                file_serializer.save()
 
         # Create the Profile instance without the 'resume' field
         profile = Profile.objects.create(**validated_data)
