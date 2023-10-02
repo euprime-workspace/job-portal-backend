@@ -13,7 +13,6 @@ from .serializers import *
 
 @api_view(['POST'])
 def CreateProfile(request):
-
     if request.method == 'POST':
         try:
             serializer_class = ProfileSerializer(data=request.data)
@@ -49,7 +48,6 @@ def signUp(request):
 
 @api_view(['POST'])
 def login(request):
-    print(request.data)
     try:
         username = request.data['username']
         password = request.data['password']
@@ -100,3 +98,39 @@ def viewRecruiter(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Recruiter.DoesNotExist:
         return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def googleLogin(request):
+    try:
+        print(request.data)
+        username = request.data['username']
+        print(1)
+        if not CustomUser.objects.filter(username=username).exists():
+            print(2)
+            serializer = UserSerializer(data=request.data)
+            print(3)
+            if serializer.is_valid():
+                print(4)
+                serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+                print(5)
+                serializer.save()
+                print(6)
+            else:
+                print(7)
+                return Response({'action': "Add User", 'message': serializer.errors},
+                                status=status.HTTP_400_BAD_REQUEST)
+            print(8)
+        user = get_object_or_404(CustomUser, username=username)
+        print(9)
+        return Response({
+            'action': "Login",
+            'message': "Login Successful",
+            'data': {
+                'id': user.id
+            }
+        }, status=status.HTTP_200_OK)
+
+
+    except Exception as e:
+        print(10)
+        return Response({'action': "Add User", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)

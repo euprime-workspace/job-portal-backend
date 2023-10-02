@@ -10,6 +10,7 @@ urlpatterns = [
     path("create_Profile/", views.CreateProfile, name="Create_Profile"),
     path("signup/", views.signUp, name="signup"),
     path("login/", views.login, name="login"),
+    path("googleLogin/", views.googleLogin, name="googleLogin"),
 
     path("recruiter/create/",views.createRecruiter,name="Create_Recruiter"),
     path("recruiter/view/",views.viewRecruiter,name="View_Recruiter"),
