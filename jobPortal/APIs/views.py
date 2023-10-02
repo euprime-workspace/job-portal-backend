@@ -73,3 +73,30 @@ def login(request):
     except Exception as e:
         return Response({'action': "Get Login", 'message': str(e)},
                         status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def createRecruiter(request):
+    if request.method=="POST":
+        try:
+            print(request.data)
+            serializer=RecruiterSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'action': "Add New Recruiter", 'message': "Recruiter Added Successfully"},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'action': "Add Recruiter", 'message': serializer.errors},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'action': "Add Recruiter", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['GET', 'POST'])
+def viewRecruiter(request):
+    print(request.data)
+    try:
+        company_name = request.data['company']  # Get the company name from the query parameter
+        recruiter = Recruiter.objects.get(company=company_name)
+        serializer = RecruiterSerializer(recruiter)  # Create a serializer instance for the recruiter
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Recruiter.DoesNotExist:
+        return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)

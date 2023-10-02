@@ -1,10 +1,20 @@
 from rest_framework import serializers
-from django.core.files.base import ContentFile
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer,TokenRefreshSerializer
 
 from .models import *
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    class Meta:
+        model=CustomUser
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
+    class Meta:
+        model=CustomUser
+
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
+        model=File
         exclude=['history']
     
     def __str__(self):
@@ -40,7 +50,23 @@ class ProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'password']
+        exclude=['id']
 
     def __str__(self):
         return self.username
+    
+class RecruiterSerializer(serializers.ModelSerializer):
+    username=models.CharField(max_length=45)
+    class Meta:
+        model = Recruiter
+        exclude=['user']
+    
+    def create(self, validated_data):
+        user=validated_data.pop('username',None)
+        validated_data['user']=CustomUser.objects.get(username=user)
+        recruiter=Recruiter.objects.create(**validated_data)
+
+        return recruiter
+
+    def __str__(self):
+        return self.company
