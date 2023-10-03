@@ -1,16 +1,7 @@
 from rest_framework import serializers
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer,TokenRefreshSerializer
 
 from .models import *
-
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    class Meta:
-        model=CustomUser
-
-class CustomTokenRefreshSerializer(TokenRefreshSerializer):
-    class Meta:
-        model=CustomUser
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
