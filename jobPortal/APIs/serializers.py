@@ -47,17 +47,9 @@ class UserSerializer(serializers.ModelSerializer):
         return self.username
     
 class RecruiterSerializer(serializers.ModelSerializer):
-    username=models.CharField(max_length=45)
     class Meta:
         model = Recruiter
-        exclude=['user']
-    
-    def create(self, validated_data):
-        user=validated_data.pop('username',None)
-        validated_data['user']=CustomUser.objects.get(username=user)
-        recruiter=Recruiter.objects.create(**validated_data)
-
-        return recruiter
+        fields='__all__'
 
     def __str__(self):
         return self.company

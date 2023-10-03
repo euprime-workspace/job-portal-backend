@@ -2,15 +2,20 @@ from typing import Any
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,UserManager,PermissionsMixin,Group, Permission
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 import uuid
 
 from simple_history.models import HistoricalRecords
+
+userTypes=(
+    ("Recruiter","Recruiter"),
+    ("Candidate","Candidate")
+)
 
 class CustomUserManager(UserManager):
     def _create_user(self,username,password,**extra_fields):
         if not username:
             raise ValueError("Invalid username field")
-        
         user=self.model(username=username,**extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -26,6 +31,14 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault('is_staff',True)
         extra_fields.setdefault('is_superuser',True)
         return self._create_user(username,password,**extra_fields)
+    
+    def clean_fields(self, *args, **kwargs):
+        super().clean_fields(*args, **kwargs)
+
+        try:
+            uuid.UUID(str(self.instance.ID))
+        except ValueError:
+            raise ValidationError({'ID': ['Invalid UUID string for ID field.']})
 
 class File(models.Model):
     uploaded_file = models.FileField(upload_to="uploads/")
@@ -35,11 +48,6 @@ class File(models.Model):
         return self.uploaded_file.name
 
 class CustomUser(AbstractBaseUser,PermissionsMixin):
-    userTypes=(
-        ("Recruiter","Recruiter"),
-        ("Candidate","Candidate")
-    )
-
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     username = models.CharField(max_length=45, unique=True)
     password = models.CharField(max_length=45)
