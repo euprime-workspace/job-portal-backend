@@ -3,15 +3,17 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Prefetch
 
 from .models import *
 from .serializers import *
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def CreateProfile(request):
     if request.method == 'POST':
         try:
@@ -47,6 +49,7 @@ def signUp(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def login(request):
     try:
         username = request.data['username']
@@ -73,10 +76,13 @@ def login(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def createRecruiter(request):
     if request.method=="POST":
+        user=request.user
+        #user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
         try:
-            print(request.data)
+            request.data['user']=user.id
             serializer=RecruiterSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -88,13 +94,14 @@ def createRecruiter(request):
         except Exception as e:
             return Response({'action': "Add Recruiter", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def viewRecruiter(request):
-    print(request.data)
+    #user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
+    user=request.user
     try:
-        company_name = request.data['company']  # Get the company name from the query parameter
-        recruiter = Recruiter.objects.get(company=company_name)
-        serializer = RecruiterSerializer(recruiter)  # Create a serializer instance for the recruiter
+        recruiter=Recruiter.objects.get(user=user)
+        serializer=RecruiterSerializer(recruiter)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Recruiter.DoesNotExist:
         return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -134,3 +141,16 @@ def googleLogin(request):
     except Exception as e:
         print(10)
         return Response({'action': "Add User", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def viewCandidates(request):
+    try:
+        profiles = Profile.objects.all().prefetch_related(
+            Prefetch('resume', queryset=File.objects.only('uploaded_file'), to_attr='resumes')
+        )
+        serializer = ProfileViewSerializer(profiles, many=True)  # Provide the queryset as data
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(str(e))
+        return Response({'error': 'Something went wrong'}, status=status.HTTP_404_NOT_FOUND)

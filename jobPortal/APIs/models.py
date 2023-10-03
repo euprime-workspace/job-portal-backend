@@ -1,10 +1,44 @@
+from typing import Any
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser,UserManager,PermissionsMixin,Group, Permission
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 import uuid
 
 from simple_history.models import HistoricalRecords
 
+userTypes=(
+    ("Recruiter","Recruiter"),
+    ("Candidate","Candidate")
+)
+
+class CustomUserManager(UserManager):
+    def _create_user(self,username,password,**extra_fields):
+        if not username:
+            raise ValueError("Invalid username field")
+        user=self.model(username=username,**extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+    
+    def create_user(self,username=None,password=None,**extra_fields):
+        extra_fields.setdefault('is_staff',False)
+        extra_fields.setdefault('is_superuser',False)
+        return self._create_user(username,password,**extra_fields)
+    
+    def create_superuser(self,username=None,password=None,**extra_fields):
+        extra_fields.setdefault('is_staff',True)
+        extra_fields.setdefault('is_superuser',True)
+        return self._create_user(username,password,**extra_fields)
+    
+    def clean_fields(self, *args, **kwargs):
+        super().clean_fields(*args, **kwargs)
+
+        try:
+            uuid.UUID(str(self.instance.ID))
+        except ValueError:
+            raise ValidationError({'ID': ['Invalid UUID string for ID field.']})
 
 class File(models.Model):
     uploaded_file = models.FileField(upload_to="uploads/")
@@ -13,17 +47,22 @@ class File(models.Model):
     def __str__(self):
         return self.uploaded_file.name
 
-
-class CustomUser(models.Model):
-    userTypes=(
-        ("Recruiter","Recruiter"),
-        ("Candidate","Candidate")
-    )
-
+class CustomUser(AbstractBaseUser,PermissionsMixin):
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     username = models.CharField(max_length=45, unique=True)
     password = models.CharField(max_length=45)
     user_type=models.CharField(max_length=9,choices=userTypes)
+
+    is_active=models.BooleanField(default=True)
+    is_superuser=models.BooleanField(default=False)
+    is_staff=models.BooleanField(default=False)
+    groups = models.ManyToManyField(Group, blank=True, related_name='custom_users')
+    user_permissions = models.ManyToManyField(Permission, blank=True, related_name='custom_users')
+
+    objects=CustomUserManager()
+
+    USERNAME_FIELD='username'
+    REQUIRED_FIELDS=['password','user_type']
 
     def __str__(self):
         return self.username

@@ -1,21 +1,12 @@
 from rest_framework import serializers
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer,TokenRefreshSerializer
 
 from .models import *
-
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    class Meta:
-        model=CustomUser
-
-class CustomTokenRefreshSerializer(TokenRefreshSerializer):
-    class Meta:
-        model=CustomUser
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model=File
-        exclude=['history']
+        fields=['uploaded_file']
     
     def __str__(self):
         return self.uploaded_file.name
@@ -25,12 +16,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        exclude = ['resume']
+        exclude = ['resume','last_login_time','id']
 
     def create(self, validated_data):
         # Get the file data from the serializer
         file_data = validated_data.pop('fileInput', None)
-        print(file_data)
         # Create the File instance and save the file data to it
         if file_data:
             file_serializer=FileSerializer(data=file_data)
@@ -45,28 +35,28 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def __str__(self):
         return self.user.username
+    
+class ProfileViewSerializer(serializers.ModelSerializer):
+    resume = FileSerializer()
+    class Meta:
+        model=Profile
+        fields='__all__'
 
+        def __str__(self):
+            return self.user.username
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        exclude=['id']
+        fields=['username','password','user_type']
 
     def __str__(self):
         return self.username
     
 class RecruiterSerializer(serializers.ModelSerializer):
-    username=models.CharField(max_length=45)
     class Meta:
         model = Recruiter
-        exclude=['user']
-    
-    def create(self, validated_data):
-        user=validated_data.pop('username',None)
-        validated_data['user']=CustomUser.objects.get(username=user)
-        recruiter=Recruiter.objects.create(**validated_data)
-
-        return recruiter
+        fields='__all__'
 
     def __str__(self):
         return self.company
