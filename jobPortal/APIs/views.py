@@ -6,13 +6,14 @@ from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Prefetch
 
 from .models import *
 from .serializers import *
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def CreateProfile(request):
 
     if request.method == 'POST':
@@ -106,3 +107,17 @@ def viewRecruiter(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Recruiter.DoesNotExist:
         return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def viewCandidates(request):
+    try:
+        profiles = Profile.objects.all().prefetch_related(
+            Prefetch('resume', queryset=File.objects.only('uploaded_file'), to_attr='resumes')
+        )
+        #profiles=Profile.objects.all()
+        serializer = ProfileViewSerializer(profiles, many=True)  # Provide the queryset as data
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(str(e))
+        return Response({'error': 'Something went wrong'}, status=status.HTTP_404_NOT_FOUND)

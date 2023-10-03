@@ -6,7 +6,7 @@ from .models import *
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model=File
-        exclude=['history']
+        fields=['uploaded_file']
     
     def __str__(self):
         return self.uploaded_file.name
@@ -16,12 +16,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        exclude = ['resume']
+        exclude = ['resume','last_login_time','id']
 
     def create(self, validated_data):
         # Get the file data from the serializer
         file_data = validated_data.pop('fileInput', None)
-        print(file_data)
         # Create the File instance and save the file data to it
         if file_data:
             file_serializer=FileSerializer(data=file_data)
@@ -36,12 +35,20 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def __str__(self):
         return self.user.username
+    
+class ProfileViewSerializer(serializers.ModelSerializer):
+    resume = FileSerializer()
+    class Meta:
+        model=Profile
+        fields='__all__'
 
+        def __str__(self):
+            return self.user.username
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        exclude=['id']
+        fields=['username','password','user_type']
 
     def __str__(self):
         return self.username
