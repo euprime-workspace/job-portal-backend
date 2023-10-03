@@ -12,7 +12,7 @@ from .serializers import *
 
 
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def CreateProfile(request):
 
     if request.method == 'POST':
@@ -49,7 +49,7 @@ def signUp(request):
 
 
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def login(request):
     print(request.data)
     try:
@@ -77,11 +77,11 @@ def login(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def createRecruiter(request):
     if request.method=="POST":
-        user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
-        print(user)
+        user=request.user
+        #user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
         try:
             request.data['user']=user.id
             serializer=RecruiterSerializer(data=request.data)
@@ -96,11 +96,10 @@ def createRecruiter(request):
             return Response({'action': "Add Recruiter", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 @api_view(['GET'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def viewRecruiter(request):
-    user=CustomUser.objects.get(username="Sreyas")
-    # if request.user:
-    #     user=request.user
+    #user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
+    user=request.user
     try:
         recruiter=Recruiter.objects.get(user=user)
         serializer=RecruiterSerializer(recruiter)
