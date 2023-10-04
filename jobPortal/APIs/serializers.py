@@ -19,15 +19,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     def __str__(self):
         return self.user.username
     
-class ProfileViewSerializer(serializers.ModelSerializer):
-    resume = FileSerializer()
-    class Meta:
-        model=Profile
-        fields='__all__'
-
-    def __str__(self):
-            return self.user.username
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -36,10 +27,37 @@ class UserSerializer(serializers.ModelSerializer):
     def __str__(self):
         return self.username
     
+class UserViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields=['username','user_type']
+
+    def __str__(self):
+        return self.username
+    
+class ProfileViewSerializer(serializers.ModelSerializer):
+    resume = FileSerializer()
+    user=UserViewSerializer()
+    class Meta:
+        model=Profile
+        exclude=['id']
+
+    def __str__(self):
+            return self.user.username
+    
 class RecruiterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recruiter
-        fields='__all__'
+        exclude=['id']
+
+    def __str__(self):
+        return self.company
+
+class RecruiterViewSerializer(serializers.ModelSerializer):
+    user=UserViewSerializer()
+    class Meta:
+        model = Recruiter
+        exclude=['id']
 
     def __str__(self):
         return self.company

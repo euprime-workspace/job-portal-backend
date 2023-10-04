@@ -110,11 +110,10 @@ def createRecruiter(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def viewRecruiter(request):
-    #user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
     user=request.user
     try:
         recruiter=Recruiter.objects.get(user=user)
-        serializer=RecruiterSerializer(recruiter)
+        serializer=RecruiterViewSerializer(recruiter)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Recruiter.DoesNotExist:
         return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
