@@ -146,11 +146,20 @@ def googleLogin(request):
 @permission_classes([IsAuthenticated])
 def viewCandidates(request):
     try:
-        profiles = Profile.objects.all().prefetch_related(
-            Prefetch('resume', queryset=File.objects.only('uploaded_file'), to_attr='resumes')
-        )
+        profiles=Profile.objects.all()
         serializer = ProfileViewSerializer(profiles, many=True)  # Provide the queryset as data
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        print(str(e))
         return Response({'error': 'Something went wrong'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def viewCandidateProfile(request,id):
+    try:
+        profile = Profile.objects.select_related('user').get(user_id=id)
+        serializer=ProfileViewSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': 'No such candidate exists'}, status=status.HTTP_404_NOT_FOUND)
+
+    

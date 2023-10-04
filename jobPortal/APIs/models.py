@@ -7,11 +7,6 @@ import uuid
 
 from simple_history.models import HistoricalRecords
 
-userTypes=(
-    ("Recruiter","Recruiter"),
-    ("Candidate","Candidate")
-)
-
 class CustomUserManager(UserManager):
     def _create_user(self,username,password,**extra_fields):
         if not username:
@@ -48,6 +43,10 @@ class File(models.Model):
         return self.uploaded_file.name
 
 class CustomUser(AbstractBaseUser,PermissionsMixin):
+    userTypes=(
+        ("Recruiter","Recruiter"),
+        ("Candidate","Candidate")
+    )
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     username = models.CharField(max_length=45, unique=True)
     password = models.CharField(max_length=45)

@@ -25,7 +25,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         if file_data:
             file_serializer=FileSerializer(data=file_data)
             if file_serializer.is_valid():
-                print("valid")
                 file_serializer.save()
 
         # Create the Profile instance without the 'resume' field
@@ -42,7 +41,7 @@ class ProfileViewSerializer(serializers.ModelSerializer):
         model=Profile
         fields='__all__'
 
-        def __str__(self):
+    def __str__(self):
             return self.user.username
 
 class UserSerializer(serializers.ModelSerializer):
