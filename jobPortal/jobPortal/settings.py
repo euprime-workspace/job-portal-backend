@@ -22,7 +22,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'simple_history',
-    'APIs.apps.ApisConfig'
+    'APIs.apps.ApisConfig',
+    'jobPortal',
+
 ]
 
 REST_FRAMEWORK = {

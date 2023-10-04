@@ -65,23 +65,25 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
 
     def __str__(self):
         return self.username
-    
+
+
 class Recruiter(models.Model):
-    firstname= models.CharField(max_length=25)
-    lastname= models.CharField(max_length=25)
-    company= models.CharField(max_length=50)
-    email= models.EmailField()
-    phone=models.CharField(max_length=15)
-    user=models.OneToOneField(CustomUser,on_delete=models.CASCADE,related_name="recruitor")
+    firstname = models.CharField(max_length=25)
+    lastname = models.CharField(max_length=25)
+    company = models.CharField(max_length=50)
+    email = models.EmailField()
+    phone = models.CharField(max_length=15)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="recruitor")
 
     def __str__(self):
         return self.company
+
 
 class Profile(models.Model):
     roles = (
         ('SDE Backend', 'SDE Backend'),
         ('SDE Frontend', 'SDE Frontend'),
-        ('Data Analyst', 'Data Analyst'),
+       ('Data Analyst', 'Data Analyst'),
         ('Data Scientist', 'Data Scientist'),
         ('Machine Learning Engineer', 'Machine Learning Engineer'),
         ('Machine Learning Scientist', 'Machine Learning Scientist')

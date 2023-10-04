@@ -3,8 +3,11 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Prefetch
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import *
@@ -12,7 +15,7 @@ from .serializers import *
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def CreateProfile(request):
     if request.method == 'POST':
         try:
@@ -62,23 +65,29 @@ def signUp(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def login(request):
     try:
         username = request.data['username']
         password = request.data['password']
-        user = get_object_or_404(CustomUser, username=username)
+        user = authenticate(request, username=username, password=password)
 
-        if check_password(password, user.password):
+        if user is not None:
+            # User authentication succeeded
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
 
             return Response({
                 'action': "Login",
                 'message': "Login Successful",
                 'data': {
-                    'id': user.id
+                    'id': user.id,
+                    'access_token': access_token,
+                    'refresh_token': str(refresh),  # Include the refresh token
                 }
             }, status=status.HTTP_200_OK)
         else:
+            # User authentication failed
             return Response({'action': "Login", 'message': "Incorrect Password"}, status=status.HTTP_401_UNAUTHORIZED)
 
     except Http404:
@@ -88,15 +97,16 @@ def login(request):
         return Response({'action': "Get Login", 'message': str(e)},
                         status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createRecruiter(request):
-    if request.method=="POST":
-        user=request.user
-        #user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
+    if request.method == "POST":
+        user = request.user
+        # user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
         try:
-            request.data['user']=user.id
-            serializer=RecruiterSerializer(data=request.data)
+            request.data['user'] = user.id
+            serializer = RecruiterSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'action': "Add New Recruiter", 'message': "Recruiter Added Successfully"},
@@ -106,7 +116,8 @@ def createRecruiter(request):
                                 status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'action': "Add Recruiter", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def viewRecruiter(request):
@@ -118,60 +129,52 @@ def viewRecruiter(request):
     except Recruiter.DoesNotExist:
         return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['POST'])
 def googleLogin(request):
     try:
         print(request.data)
         username = request.data['username']
-        print(1)
         if not CustomUser.objects.filter(username=username).exists():
-            print(2)
             serializer = UserSerializer(data=request.data)
-            print(3)
             if serializer.is_valid():
-                print(4)
                 serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
-                print(5)
                 serializer.save()
-                print(6)
             else:
-                print(7)
                 return Response({'action': "Add User", 'message': serializer.errors},
                                 status=status.HTTP_400_BAD_REQUEST)
-            print(8)
         user = get_object_or_404(CustomUser, username=username)
-        print(9)
         return Response({
             'action': "Login",
             'message': "Login Successful",
             'data': {
+                'token': "true",
                 'id': user.id
             }
         }, status=status.HTTP_200_OK)
 
-
     except Exception as e:
-        print(10)
-        return Response({'action': "Add User", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({'action': "Get Login", 'message': str(e)},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def viewCandidates(request):
     try:
-        profiles=Profile.objects.all()
+        profiles = Profile.objects.all()
         serializer = ProfileViewSerializer(profiles, many=True)  # Provide the queryset as data
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': 'Something went wrong'}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def viewCandidateProfile(request,id):
+def viewCandidateProfile(request, id):
     try:
         profile = Profile.objects.select_related('user').get(user_id=id)
-        serializer=ProfileViewSerializer(profile)
+        serializer = ProfileViewSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': 'No such candidate exists'}, status=status.HTTP_404_NOT_FOUND)
-
-    
