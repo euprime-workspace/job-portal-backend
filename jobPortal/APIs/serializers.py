@@ -12,25 +12,9 @@ class FileSerializer(serializers.ModelSerializer):
         return self.uploaded_file.name
 
 class ProfileSerializer(serializers.ModelSerializer):
-    fileInput = serializers.FileField(max_length=100000,allow_empty_file=False)  # This field will handle the file upload
-
     class Meta:
         model = Profile
-        exclude = ['resume','last_login_time','id']
-
-    def create(self, validated_data):
-        # Get the file data from the serializer
-        file_data = validated_data.pop('fileInput', None)
-        # Create the File instance and save the file data to it
-        if file_data:
-            file_serializer=FileSerializer(data=file_data)
-            if file_serializer.is_valid():
-                file_serializer.save()
-
-        # Create the Profile instance without the 'resume' field
-        profile = Profile.objects.create(**validated_data)
-
-        return profile
+        exclude = ['last_login_time','id']
 
     def __str__(self):
         return self.user.username

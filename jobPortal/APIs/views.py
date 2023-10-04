@@ -6,7 +6,6 @@ from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Prefetch
 
 from .models import *
 from .serializers import *
@@ -17,17 +16,31 @@ from .serializers import *
 def CreateProfile(request):
     if request.method == 'POST':
         try:
-            serializer_class = ProfileSerializer(data=request.data)
-            if serializer_class.is_valid():
-                serializer_class.save()
-                return Response({'action': "Add Profile", 'message': "Profile Added Successfully"},
-                                status=status.HTTP_200_OK)
+            # Get the file data from the request
+            file_data = request.FILES.get('fileInput')
+            
+            # Create the File instance and save the file data to it
+            if file_data:
+                file_serializer = FileSerializer(data={'uploaded_file': file_data})
+                if file_serializer.is_valid():
+                    file_instance=file_serializer.save()
+
+            # Create the Profile instance with other data
+            profile_serializer = ProfileSerializer(data=request.data)
+            if profile_serializer.is_valid():
+                # Get the validated data from the serializer
+                profile_data = profile_serializer.validated_data
+
+                # Create the Profile instance and set the resume field
+                profile = Profile(**profile_data, resume=file_instance)
+                profile.save()
+                return Response({'action': "Add Profile", 'message': "Profile Added Successfully"}, status=status.HTTP_200_OK)
             else:
-                return Response({'action': "Add Profile", 'message': serializer_class.errors},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response({'action': "Add Profile", 'message': profile_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({'action': "Add Profile", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['POST'])
