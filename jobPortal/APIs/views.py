@@ -15,7 +15,7 @@ from .serializers import *
 
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def CreateProfile(request):
     if request.method == 'POST':
         try:
@@ -27,6 +27,12 @@ def CreateProfile(request):
                 file_serializer = FileSerializer(data={'uploaded_file': file_data})
                 if file_serializer.is_valid():
                     file_instance = file_serializer.save()
+                else:
+                    return Response({'action': "Add Profile", 'message': file_serializer.errors},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # If no file is provided, set file_instance to None
+                file_instance = None
 
             # Create the Profile instance with other data
             profile_serializer = ProfileSerializer(data=request.data)
@@ -38,7 +44,7 @@ def CreateProfile(request):
                 profile = Profile(**profile_data, resume=file_instance)
                 profile.save()
                 return Response({'action': "Add Profile", 'message': "Profile Added Successfully"},
-                                status=status.HTTP_200_OK)
+                                status=status.HTTP_201_CREATED)
             else:
                 return Response({'action': "Add Profile", 'message': profile_serializer.errors},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -176,13 +182,23 @@ def viewCandidateProfile(request, id):
         return Response({'error': 'No such candidate exists'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
 def getUserId(request):
-    try:
-        username = request.data['username']
-        user = CustomUser.objects.get(username=username)
-        if user:
-            return Response({'id': user.id, "userType": user.user_type}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': 'Something went wrong'}, status=status.HTTP_404_NOT_FOUND)
+    print(request)
+    if request.method == 'GET':
+        try:
+            username = request.query_params.get('username')  # Use query parameters for GET requests
+            if not username:
+                return Response({'error': 'Username parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = CustomUser.objects.filter(
+                username=username).first()  # Use filter and first() to handle user not found
+
+            if user:
+                return Response({'id': user.id, 'userType': user.user_type}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
