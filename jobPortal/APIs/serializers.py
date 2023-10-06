@@ -57,7 +57,7 @@ class RecruiterViewSerializer(serializers.ModelSerializer):
     user=UserViewSerializer()
     class Meta:
         model = Recruiter
-        exclude=['id']
+        fields='__all__'
 
     def __str__(self):
         return self.company
