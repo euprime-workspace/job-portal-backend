@@ -1,18 +1,18 @@
 from django.http import Http404
-from django.http import Http404
-from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, status
+from django.shortcuts import render
+from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Prefetch
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
+import requests
+import json
 
 from .models import *
 from .serializers import *
 
+ml_baseUrl='https://26bc-35-204-254-148.ngrok-free.app/'
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -177,9 +177,47 @@ def viewCandidateProfile(request, id):
     try:
         profile = Profile.objects.select_related('user').get(user_id=id)
         serializer = ProfileViewSerializer(profile)
+
+        file_instance = profile.resume.uploaded_file
+            
+        # Define the URL of the API endpoint where you want to send the file
+        api_endpoint = f'{ml_baseUrl}upload'
+
+        # Prepare the file data as a dictionary with the file key and file object
+        file = {'file': open(file_instance.path, 'rb')}
+        print("ok")
+        response = requests.post(api_endpoint, files=file)
+        print("response: ",response.text)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
+        print("error: ",e)
         return Response({'error': 'No such candidate exists'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def askQuery(request, id, question):
+    url = f'{ml_baseUrl}ask/'
+
+    payload = json.dumps({
+        "question": question
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, data=payload)
+    print("response: ",response.text)
+
+    # Check if the request to the external API was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the JSON response content from the external API
+        response_data = json.loads(response.text)
+        # Return the parsed JSON response as a JSON response in your Django view
+        return Response(response_data, status=status.HTTP_200_OK)
+    else:
+        # If the request to the external API was not successful, return an error response
+        return Response({'error': 'Failed to retrieve data from the external API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])

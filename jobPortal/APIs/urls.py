@@ -16,6 +16,7 @@ urlpatterns = [
     path("recruiter/view/", views.viewRecruiter, name="View_Recruiter"),
     path("candidate/all/", views.viewCandidates, name="viewAllProfiles"),
     path("candidate/<uuid:id>/", views.viewCandidateProfile, name="viewCandidateProfile"),
+    path("candidate/<uuid:id>/<str:question>/", views.askQuery, name="askCandidateProfile"),
     path("getUserId/", views.getUserId, name="getUserId"),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
