@@ -101,3 +101,39 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class JobDescription(models.Model):
+    TIERS = [
+        ['psu', 'PSU'],
+        ['1', 'Tier 1'],
+        ['2', 'Tier 2'],
+        ['3', 'Tier 3'],
+        ['4', 'Tier 4'],
+        ['5', 'Tier 5'],
+        ['6', 'Tier 6'],
+        ['7', 'Tier 7'],
+        ['8', 'Open Tier'],
+    ]
+
+    company_name=models.CharField(max_length=50)
+    address=models.TextField()
+    webiste=models.CharField(max_length=50)
+    company_details=models.CharField(max_length=50,null=True)
+    company_docs=models.FileField(upload_to="company_files/",null=True)
+    contact_person=models.ForeignKey(Recruiter,related_name="job_offer",on_delete=models.CASCADE)
+    designation=models.CharField(max_length=50)
+    compensation_CTC=models.IntegerField(null=True,default=None)
+    compensation_take_home = models.IntegerField(blank=False, default=None, null=True)
+    compensation_bonus = models.IntegerField(blank=True, default=None, null=True)
+    bond_details=models.TextField(max_length=50,null=True)
+    selection_procedure_details=models.TextField(null=True)
+    tier = models.CharField(blank=False, choices=TIERS, max_length=10, default=None, null=True)
+    tentative_date_of_joining = models.DateField(null=False, default=timezone.now)
+    tentative_no_of_offers = models.IntegerField(default=None,null=True)
+    offer_accepted=models.IntegerField(default=None,null=True)
+    deadline_datetime = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.company_name
