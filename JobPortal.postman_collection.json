@@ -1,0 +1,340 @@
+{
+	"info": {
+		"_postman_id": "c39f401a-5986-4ef9-a0a7-a076dec5525e",
+		"name": "JobPortal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29264002",
+		"_collection_link": "https://solar-crescent-411959.postman.co/workspace/Euprime~d70c1e05-84dc-49d3-a662-902a7a42b0b8/collection/29264002-c39f401a-5986-4ef9-a0a7-a076dec5525e?action=share&source=collection_link&creator=29264002"
+	},
+	"item": [
+		{
+			"name": "Signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"postmanRecruitor\",\n    \"password\":\"jobPortal\",\n    \"user_type\":\"Recruiter\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Host}}signup/",
+					"host": [
+						"{{Host}}signup"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Candidate Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fileInput",
+							"type": "file",
+							"src": "/home/dell/Desktop/IIITB/3rdSem/MARS/MIPS_Assignment1/IMT2022554_IMT2022555_report.pdf"
+						},
+						{
+							"key": "user",
+							"value": "0387a8b6-32cf-4ce8-8a39-355ed5b0ca9c",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "postman@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "9108954542",
+							"type": "text"
+						},
+						{
+							"key": "role",
+							"value": "Machine Learning Scientist",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Host}}/create_Profile/",
+					"host": [
+						"{{Host}}"
+					],
+					"path": [
+						"create_Profile",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "obtain JWT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"postmanRecruitor\",\n    \"password\":\"jobPortal\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Host}}api/token/",
+					"host": [
+						"{{Host}}api"
+					],
+					"path": [
+						"token",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Recruiter",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstname\":\"postman\",\n    \"lastname\":\"recruiter\",\n    \"company\":\"postoffice\",\n    \"email\":\"recruiterPostMan@gmail.com\",\n    \"phone\":\"9108954541\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Host}}recruiter/create/",
+					"host": [
+						"{{Host}}recruiter"
+					],
+					"path": [
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recruiter View",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Host}}recruiter/view/",
+					"host": [
+						"{{Host}}recruiter"
+					],
+					"path": [
+						"view",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View All candidates",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Host}}candidate/all/",
+					"host": [
+						"{{Host}}candidate"
+					],
+					"path": [
+						"all",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh JWT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"refresh\":\"{{refreshToken}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Host}}api/token/refresh/",
+					"host": [
+						"{{Host}}api"
+					],
+					"path": [
+						"token",
+						"refresh",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View candidate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Host}}candidate/{{candidateId}}/",
+					"host": [
+						"{{Host}}candidate"
+					],
+					"path": [
+						"{{candidateId}}",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ask candidate analyser",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Host}}candidate/{{candidateId}}/{{question}}",
+					"host": [
+						"{{Host}}candidate"
+					],
+					"path": [
+						"{{candidateId}}",
+						"{{question}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "candidateId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "question",
+			"value": "What are the top 3 skills of this candidate?"
+		}
+	]
+}
