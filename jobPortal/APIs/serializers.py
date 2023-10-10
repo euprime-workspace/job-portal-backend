@@ -40,7 +40,7 @@ class ProfileViewSerializer(serializers.ModelSerializer):
     user=UserViewSerializer()
     class Meta:
         model=Profile
-        exclude=['id']
+        fields='__all__'
 
     def __str__(self):
             return self.user.username
