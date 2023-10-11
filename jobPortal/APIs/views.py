@@ -258,3 +258,14 @@ def viewJobs(request):
         except Exception as e:
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+        
+    elif(request.method=="GET"):
+        try:
+            serializer=JobDescriptionViewSerializer(JobDescription.objects.all(),many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+# @api_view(['GET','PUT'])
+# def viewJobDescription(request)

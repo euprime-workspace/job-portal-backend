@@ -70,3 +70,14 @@ class JobDescriptionSerializer(serializers.ModelSerializer):
 
     def __str__(self):
         return self.company_name.company
+    
+class JobDescriptionViewSerializer(serializers.ModelSerializer):
+    company_docs=serializers.FileField(required=False)
+    contact_person=RecruiterViewSerializer()
+
+    class Meta:
+        model=JobDescription
+        exclude=['created_at','updated_at']
+
+    def __str__(self):
+        return self.company_name.company
