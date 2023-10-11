@@ -13,7 +13,7 @@ import json
 from .models import *
 from .serializers import *
 
-ml_baseUrl='https://26bc-35-204-254-148.ngrok-free.app/'
+ml_baseUrl='http://ec2-3-110-128-7.ap-south-1.compute.amazonaws.com:8080/'
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -111,6 +111,7 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def createRecruiter(request):
     try:
+        request.data['user']=request.user.id
         serializer = RecruiterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

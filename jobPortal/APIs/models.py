@@ -105,7 +105,7 @@ class Profile(models.Model):
 class JobDescription(models.Model):
     company_name=models.CharField(max_length=50)
     address=models.TextField()
-    webiste=models.CharField(max_length=50)
+    webiste=models.CharField(max_length=300)
     company_details=models.CharField(max_length=50,null=True)
     company_docs=models.FileField(upload_to="company_files/",null=True)
     contact_person=models.ForeignKey(Recruiter,related_name="job_offer",on_delete=models.CASCADE)
