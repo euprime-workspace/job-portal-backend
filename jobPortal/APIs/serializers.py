@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework import serializers
 
 from .models import *
 
@@ -40,7 +39,7 @@ class ProfileViewSerializer(serializers.ModelSerializer):
     user=UserViewSerializer()
     class Meta:
         model=Profile
-        exclude=['id']
+        fields='__all__'
 
     def __str__(self):
             return self.user.username
@@ -61,3 +60,24 @@ class RecruiterViewSerializer(serializers.ModelSerializer):
 
     def __str__(self):
         return self.company
+    
+class JobDescriptionSerializer(serializers.ModelSerializer):
+    company_docs = serializers.FileField(required=False)
+    username=models.CharField(max_length=45)
+    class Meta:
+        model=JobDescription
+        exclude=['updated_at','created_at','id']
+
+    def __str__(self):
+        return self.company_name.company
+    
+class JobDescriptionViewSerializer(serializers.ModelSerializer):
+    company_docs=serializers.FileField(required=False)
+    contact_person=RecruiterViewSerializer()
+
+    class Meta:
+        model=JobDescription
+        exclude=['created_at','updated_at']
+
+    def __str__(self):
+        return self.company_name.company
