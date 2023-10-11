@@ -195,7 +195,7 @@ def viewCandidateProfile(request, id):
 
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def viewRecruiterProfile(request, id):
     try:
         recruiter = get_object_or_404(Recruiter, user_id=id)
@@ -206,8 +206,6 @@ def viewRecruiterProfile(request, id):
     except Exception as e:
         print(e)
         return Response({'error': 'An error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
     
 @api_view(['GET'])
@@ -259,13 +257,15 @@ def getUserId(request):
     
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
 def viewJobs(request):
     if request.method=="POST":
         try:
-            recruiter=Recruiter.objects.get(user__username=request.data['username'])
-            request.data['contact_person']=recruiter.id
-            request.data['company_name']=recruiter.company
-            serializer = JobDescriptionSerializer(data=request.data)
+            input_data=request.data.copy()
+            recruiter=Recruiter.objects.get(user=request.user)
+            input_data['contact_person']=recruiter.id
+            input_data['company_name']=recruiter.company
+            serializer = JobDescriptionSerializer(data=input_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)

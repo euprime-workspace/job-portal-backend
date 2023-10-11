@@ -63,7 +63,6 @@ class RecruiterViewSerializer(serializers.ModelSerializer):
     
 class JobDescriptionSerializer(serializers.ModelSerializer):
     company_docs = serializers.FileField(required=False)
-    username=models.CharField(max_length=45)
     class Meta:
         model=JobDescription
         exclude=['updated_at','created_at','id']
