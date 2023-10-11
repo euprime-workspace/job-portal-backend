@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 import requests
 import json
 
@@ -17,6 +18,7 @@ ml_baseUrl='https://26bc-35-204-254-148.ngrok-free.app/'
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def CreateProfile(request):
+    print(request.data)
     if request.method == 'POST':
         try:
             # Get the file data from the request
@@ -108,21 +110,17 @@ def login(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createRecruiter(request):
-    if request.method == "POST":
-        user = request.user
-        # user=CustomUser.objects.get(id="58b383a9-f4e1-47ce-a0b1-8db5cb144f73")
-        try:
-            request.data['user'] = user.id
-            serializer = RecruiterSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'action': "Add New Recruiter", 'message': "Recruiter Added Successfully"},
-                                status=status.HTTP_200_OK)
-            else:
-                return Response({'action': "Add Recruiter", 'message': serializer.errors},
-                                status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'action': "Add Recruiter", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        serializer = RecruiterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'action': "Add Recruiter", 'message': "Recruiter Added Successfully"},
+                            status=status.HTTP_201_CREATED)
+        else:
+            return Response({'action': "Add Recruiter", 'message': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'action': "Add Recruiter", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -193,6 +191,23 @@ def viewCandidateProfile(request, id):
     except Exception as e:
         print("error: ",e)
         return Response({'error': 'No such candidate exists'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def viewRecruiterProfile(request, id):
+    try:
+        recruiter = get_object_or_404(Recruiter, user_id=id)
+        serializer = RecruiterSerializer(recruiter)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Recruiter.DoesNotExist:
+        return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(e)
+        return Response({'error': 'An error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

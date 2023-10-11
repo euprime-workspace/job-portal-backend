@@ -72,7 +72,7 @@ class Recruiter(models.Model):
     lastname = models.CharField(max_length=25)
     company = models.CharField(max_length=50)
     email = models.EmailField()
-    phone = models.CharField(max_length=15)
+    phone_number = models.CharField(max_length=15)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="recruitor")
 
     def __str__(self):
@@ -83,7 +83,7 @@ class Profile(models.Model):
     roles = (
         ('SDE Backend', 'SDE Backend'),
         ('SDE Frontend', 'SDE Frontend'),
-       ('Data Analyst', 'Data Analyst'),
+        ('Data Analyst', 'Data Analyst'),
         ('Data Scientist', 'Data Scientist'),
         ('Machine Learning Engineer', 'Machine Learning Engineer'),
         ('Machine Learning Scientist', 'Machine Learning Scientist')
