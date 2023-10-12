@@ -205,7 +205,7 @@ def viewRecruiterProfile(request, id):
         return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(e)
-        return Response({'error': 'An error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     
 @api_view(['GET'])
@@ -315,4 +315,13 @@ def viewJobDescription(request,id):
     else:
         return Response("You do not have access to change the jobDescription",status=status.HTTP_400_BAD_REQUEST) 
 
-    
+
+@api_view(['GET'])    
+@permission_classes([IsAuthenticated])
+def viewMyJDs(request):
+    try:
+        JobDescriptions=JobDescription.objects.filter(contact_person__user=request.user)
+        serializer=JobDescriptionViewSerializer(JobDescriptions,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR) 

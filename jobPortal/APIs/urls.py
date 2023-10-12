@@ -22,6 +22,7 @@ urlpatterns = [
 
     path("jobs/",views.viewJobs,name="jobs"),
     path("job/<str:id>/",views.viewJobDescription,name="job_description"),
+    path("myJDs/",views.viewMyJDs,name="myJobDescriptions"),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
